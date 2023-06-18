@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LED Control</title>
+</head>
+<body>
+    <h1>LED Control</h1>
+    <button onclick="toggle_led()">Toggle LED</button>
+
+
+    <h1 id="LEDstatus"> LED status</h1>
+
+
+    <br>
+    <button onclick="get_food()" style="height:30px;width:100;font-size: 20px">Food</button>
+    <br>  
+
+    
+    <br>
+
+    <button onclick="toggle_led()" style="height:30px;width:100;font-size: 20px" >Number</button>
+
+    
+    <script>
+
+function get_food() {
+
+        console.log("get food entered")
+          const element = document.getElementById("LEDstatus");
+          var value = fetch('/food')
+                .then(response => response.text())
+                .then(text => document.getElementById("LEDstatus").innerHTML = text)
+                .catch(error => console.log(error))
+            console.log(value)
+        } 
+
+
+        function toggle_led() {
+            console.log("toggle_led entered")
+          const element = document.getElementById("LEDstatus");
+          fetch('/toggle_led')
+                .then(response => response.text())
+                .then(text => document.getElementById("LEDstatus").innerHTML = text)
+                .catch(error => console.log(error))
+        }
+
+         
+    </script>
+
+    
+
+    
+</body>
+</html>
+

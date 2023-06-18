@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Audio Recorder</title>
+  </head>
+  <body>
+    <button id="recordButton">Record</button>
+    <audio id="audioElement"></audio>
+
+    <script>
+      
+      const audioElement = document.getElementById('audioElement');
+      const recordButton = document.getElementById('recordButton');
+
+      recordButton.addEventListener('click', () => {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(stream => {
+            const mediaRecorder = new MediaRecorder(stream);
+            const chunks = [];
+
+            console.log("rec stared");
+            mediaRecorder.start();
+
+            mediaRecorder.addEventListener('dataavailable', event => {
+              chunks.push(event.data);
+            });
+
+            // stop recording after 3 seconds
+            setTimeout(() => {
+              mediaRecorder.stop();
+            }, 3000);
+
+            mediaRecorder.addEventListener('stop', () => {
+              const blob = new Blob(chunks);
+              const audioUrl = URL.createObjectURL(blob);
+              audioElement.src = audioUrl;
+
+              // send the audio data to the REST API server
+              const formData = new FormData();
+              let data = new FormData();
+
+              formData.append('audio', blob);
+
+              const config = {
+                headers: { 'content-type': 'multipart/form-data' }
+              }
+              fetch("/api/recorderfiles", {
+              method: "POST",
+              body: JSON.stringify({
+                formData
+              }),
+              headers: config
+            });
+
+              
+              console.log("rec stopped");
+
+            /*  fetch('https://example.com/api/endpoint', {
+                method: 'POST',
+                body: formData
+              }).then(response => {
+                console.log('Audio uploaded:', response);
+              }).catch(error => {
+                console.error('Error uploading audio:', error);
+              });*/
+            });
+
+            recordButton.addEventListener('click', () => {
+              mediaRecorder.stop();
+             
+            });
+          });
+      });
+    </script>
+  </body>
+</html>

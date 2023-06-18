@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Audio Recorder</title>
+  </head>
+  <body>
+    <button id="recordButton">Record</button>
+    <audio id="audioElement"></audio>
+
+    <script>
+      const audioElement = document.getElementById('audioElement');
+      const recordButton = document.getElementById('recordButton');
+
+      recordButton.addEventListener('click', async () => {
+                   /* if (MediaRecorder.isTypeSupported('audio/mp3')) {
+            console.log('audio/mp3 is supported');
+            } else {
+            console.error('audio/mp3 is not supported');
+            }*/
+
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mimeType = 'audio/mp3';
+
+        const mediaRecorderOptions = {
+          mimeType: mimeType
+        };
+
+        const mediaRecorder = new MediaRecorder(stream, mediaRecorderOptions);
+
+        const chunks = [];
+
+        mediaRecorder.addEventListener('dataavailable', event => {
+          chunks.push(event.data);
+        });
+
+        mediaRecorder.start();
+
+        // stop recording after 3 seconds
+        setTimeout(() => {
+          mediaRecorder.stop();
+        }, 3000);
+
+        mediaRecorder.addEventListener('stop', () => {
+          const blob = new Blob(chunks);
+          const audioUrl = URL.createObjectURL(blob);
+          audioElement.src = audioUrl;
+
+          // send the audio data to the Flask backend
+          const formData = new FormData();
+          formData.append('audio', blob);
+
+          fetch('api/save_audio', {
+            method: 'POST',
+            body: formData
+          }).then(response => {
+            console.log('Audio saved:', response);
+          }).catch(error => {
+            console.error('Error saving audio:', error);
+          });
+        });
+
+        recordButton.addEventListener('click', () => {
+          mediaRecorder.stop();
+        });
+      });
+    </script>
+  </body>
+</html>

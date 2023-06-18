@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Audio Recorder</title>
+    <style>
+      #indicator {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: green;
+      }
+
+      #indicator.red {
+        background-color: red;
+      }
+
+      #indicator.green {
+        background-color: green;
+      }
+    </style>
+
+  </head>
+  <body>
+    <h1> Nutritional calculator V5</h1>
+    <button id="record-btn-food">Record food</button>
+    
+    <button id="record-btn-number">Record qty(100s of grams)</button>
+    <br>
+    <br>
+    <h4>Record indicator</h4>
+    
+    <div id="indicator"></div>
+    <br>
+    <br>
+    <button onclick="calculate_Nutrients()"  id="calculte-btn">Calculate</button><br>
+    <p id="recFoodOutput">Recorded food: </p>
+    <p id="recNumberOutput">Recorded qty(100s of grams) </p>
+    <h4> 7 most important nutrients</h4>
+    <p id="Calorie">Calorie(kcal): </p>
+    <p id="Carbohydrate">Carbohydrate(mg): </p>
+    <p id="Protein">Protein(mg): </p>
+    <p id="Fat">Fat(mg): </p>
+    <p id="Sodium">Sodium(mg): </p>
+    <p id="Potassium">Potassium(mg): </p>
+    <p id="Calcium">Calcium(mg): </p>
+
+    
+
+
+  
+
+    <script>
+     const foodRecordBtn = document.getElementById('record-btn-food');
+     const NumberRecordBtn = document.getElementById('record-btn-number');
+     let foodRecDisplay = document.getElementById('recFoodOutput');
+     let numberRecDisplay = document.getElementById('recNumberOutput');
+     let CalorieDisplay = document.getElementById('Calorie');
+     let CarbohydrateDisplay = document.getElementById('Carbohydrate');
+     let ProteinDisplay = document.getElementById('Protein');
+     let FatDisplay = document.getElementById('Fat');
+     let SodiumDisplay = document.getElementById('Sodium');
+     let PotassiumDisplay = document.getElementById('Potassium');
+     let CalciumDisplay = document.getElementById('Calcium');
+     const indicator = document.getElementById('indicator');
+
+
+     function displayOutput(json)
+     {
+      console.log(json.food);
+      console.log(json.qty);
+      console.log(json.NiacinEq);
+
+      foodRecDisplay.innerHTML = " Recorded food: " + String(json.food);
+      numberRecDisplay.innerHTML = "Recorded qty(100s of grams): " + String(json.qty);
+      CalorieDisplay.innerHTML = "Calorie(kcal):" + String(json.Energy_kcal);
+      CarbohydrateDisplay.innerHTML = "Carbohydrate(mg): " + String(json.Carbohydrate);
+      ProteinDisplay.innerHTML = "Protein(mg) :" + String(json.Protein)
+      FatDisplay.innerHTML = "Fat(mg):" + String(json.Fat);
+      SodiumDisplay.innerHTML = "Sodium(mg):" + String(json.Sodium);
+      PotassiumDisplay.innerHTML = "Potassium(mg):" + String(json.Potassium);
+      CalciumDisplay.innerHTML = "Calcium(mg):" + String(json.Calcium);
+
+     }
+     function calculate_Nutrients() {
+        
+         fetch('/calculate').then((response) => {
+          return response.json();
+         }).then((json) => displayOutput(json)).catch(
+          (err) => console.error(`Fetch problem: ${err.message}`)
+         );
+         
+
+     }
+
+
+     const constraints = {
+  audio: {
+    sampleRate: 16000
+  }
+};
+
+
+NumberRecordBtn.addEventListener('click', () => {
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+      const mediaRecorder = new MediaRecorder(stream,{audioBitsPerSecond: 16000});
+      const chunks = [];
+
+      setTimeout(() => {
+        mediaRecorder.start();
+      indicator.className = 'red';
+      console.log("number rec started");
+      console.log(mediaRecorder.state);
+
+      }, 1000);
+
+      
+
+      setTimeout(() => {
+        mediaRecorder.stop();
+
+      }, 4000);
+
+      
+      mediaRecorder.addEventListener('dataavailable', e => {
+        chunks.push(e.data);
+      });
+
+      mediaRecorder.addEventListener('stop', () => {
+        indicator.className = 'green';
+        console.log("number rec stopped")
+        console.log(mediaRecorder.state);
+        const blob = new Blob(chunks, { type: 'audio/wav codecs=PCM_32' });
+       
+        const formData = new FormData();
+
+        formData.append('audio', blob);
+        formData.append('fileName', 'number.wav');
+
+        fetch('/NumberWordUpload', {
+          method: 'POST',
+          body: formData
+        });
+      });
+    });
+});
+
+
+foodRecordBtn.addEventListener('click', () => {
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+      const mediaRecorder = new MediaRecorder(stream,{audioBitsPerSecond: 16000});
+      const chunks = [];
+
+      setTimeout(() => {
+        mediaRecorder.start();
+      indicator.className = 'red';
+      console.log("number rec started");
+      console.log(mediaRecorder.state);
+
+      }, 1000);
+
+      setTimeout(() => {
+        mediaRecorder.stop();
+
+      }, 4000);
+
+      
+      mediaRecorder.addEventListener('dataavailable', e => {
+        chunks.push(e.data);
+      });
+
+      mediaRecorder.addEventListener('stop', () => {
+        console.log("rec stopped");
+        indicator.className = 'green';
+        console.log(mediaRecorder.state);
+        const blob = new Blob(chunks, { type: 'audio/wav codecs=PCM_16' });
+       
+        const formData = new FormData();
+
+        formData.append('audio', blob);
+
+        fetch('/foodWordUpload', {
+          method: 'POST',
+          body: formData
+        });
+      });
+    });
+});
+
+    </script>
+  </body>
+</html>

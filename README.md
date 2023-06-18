@@ -1,5 +1,14 @@
 # Smart-Nutrition-Tracker-Web-app
-This file contains instructions on how to run the program and the web interface
+
+A significant portion of people in the UK experience mental health problems. It is estimated that at least 1 in 4 individuals in the UK have mental health problems. A multitude of causes are responsible for mental health problem. Environmental factors which include diet, sleep and nutrition are one set of them.
+
+This project looks at the development of a smart voice-based food and nutrition data logger web app which serves as a tool to save daily nutrition information from people. 
+
+The above objective will be done in two stages. The first stage will be the implementation of the individualized voice-based word classifier. The second stage of the project would consist of porting the machine learning project into a web interface so that it can become more convenient for users to log
+their nutrition values
+
+
+In addition, This file contains instructions on how to run the program and the web interface
 
 1.Python program
     1.1 Firstly install a anaconda environment using the environment.yml file and by entering the command 
